@@ -26,7 +26,7 @@
 - Explain how to run/reproduce things myself when you set something up (short "how to start" notes).
 
 ## Skills (in `~/.agents/skills/`, synced via GitHub repo `xwang2775/agent-kit`)
-- `status-report`: 默认汇报协议. When I say "按汇报协议" / "开始汇报" / "status report", or hand off a long task, read `~/.agents/skills/status-report/SKILL.md` (Chinese: `SKILL.zh.md`) and follow it until I say stop.
+- `status-report`: 默认汇报协议. **Always on in every session and every agent (since 2026-11-18), no trigger needed.** Read `~/.agents/skills/status-report/SKILL.md` (Chinese: `SKILL.zh.md`) at session start and report in that format until I say stop. Whenever work is running or spans more than one turn (background jobs, experiments, multi-step tasks), also schedule the 30-min CST reports. A quick one-turn answer with nothing running can be a normal reply.
 
 ## Self-update rule (for all agents)
 When I give feedback that is **important and reusable across sessions** (a correction, a stated preference, or something I confirm works well), update this file:
