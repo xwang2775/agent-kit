@@ -1,96 +1,98 @@
 ---
 name: status-report
-description: 默认汇报协议 (status-report protocol) for long-running / autonomous work such as experiment batches, multi-step jobs, overnight runs. Use when the user says "按汇报协议", "开始汇报", "每30分钟汇报", "status report", "report every 30 min", or hands off a long task and will be away. Defines 30-min cadence in CST, self-contained reports, numbered decision questions with defaults, and pinned answers until acknowledged.
+description: Default status-report protocol (默认汇报协议) for long-running or autonomous work such as experiment batches, multi-step jobs, overnight runs. Use when the user says "status report", "report every 30 min", "按汇报协议", "开始汇报", "每30分钟汇报", or hands off a long task and will be away. Defines a 30-min cadence in CST, self-contained reports, numbered decision questions with defaults, and pinned answers until acknowledged.
 ---
 
-# 默认汇报协议
+# Default Status-Report Protocol
 
-收到后立即生效，一直执行，直到用户说停。
+> English version. 中文版: [SKILL.zh.md](SKILL.zh.md) (same content).
 
-## 0. 与用户偏好的结合（先读）
-- 语言：跟随用户最近主要使用的语言（默认中文），技术词、实验名、指标名保留英文。
-- 简洁：表格每格一句话。长内容给结论和关键数字，细节给文件路径（`path:line`），不要贴大段日志。
-- 时间：用 `TZ=America/Chicago date +%H:%M` 取时间，统一标注 CST。所有 ETA 都写成绝对时间，不写"约 20 分钟后"。
-- 可撤回的常规小步骤（改脚本、重跑失败 job、调日志级别等）不算待决问题：直接做，写进"变化"。只有会影响结论、花费明显资源或不可逆的才编号成 Q。
-- 每个 Q 的默认选项必须是一个明确推荐，附一句理由，不要只罗列选项。
-- 给别人的邮件/消息只能存草稿，不能发送（属于第 4 节的对外动作）。
-- 定时方式（按所在 harness 选一个，不要 `sleep` 空转轮询）：
-  - Claude Code：`CronCreate`（`*/30 * * * *`）或在 `/loop` 动态模式下用 `ScheduleWakeup(delaySeconds=1800)`。
-  - T3 Code：同上；也可用 `schedule_task`。
-  - 没有定时工具的 harness（如部分 Codex/Gemini 环境）：每到一个自然检查点就发一份完整汇报，并在第一份汇报里说明无法保证 30 分钟节奏。
+Takes effect as soon as it is received and stays in effect until the user says stop.
 
-## 1. 频率
-- 每 30 分钟汇报一次。用定时唤醒，不要空转轮询。
-- 时间一律用美国中部时间（CST），并写明 CST。
+## 0. Combine with the user's preferences (read first)
+- Language: write reports in the language the user has mainly been using (Chinese headings from SKILL.zh.md if Chinese, the English headings below if English). Keep technical terms, experiment names, and metric names in English.
+- Be concise: one sentence per table cell. For long content give the conclusion and key numbers, and point to file paths (`path:line`) for details. Do not paste large logs.
+- Time: get it with `TZ=America/Chicago date +%H:%M` and always label it CST. Every ETA is an absolute clock time, never "in about 20 minutes".
+- Routine, reversible steps (editing a script, rerunning a failed job, changing log level, etc.) are not decision questions: just do them and list them under "Changes". Only things that affect conclusions, cost noticeable resources, or are irreversible get a Q number.
+- The default for every Q must be one clear recommendation with a one-line reason, not just a list of options.
+- Emails or messages to other people are saved as drafts only, never sent (they are external actions under Section 4).
+- Timer (pick one for your harness; never busy-poll with `sleep`):
+  - Claude Code: `CronCreate` (`*/30 * * * *`), or `ScheduleWakeup(delaySeconds=1800)` in `/loop` dynamic mode.
+  - T3 Code: same as above, or `schedule_task`.
+  - Harnesses without a timer tool (some Codex/Gemini setups): send a full report at every natural checkpoint, and say in the first report that the 30-minute cadence cannot be guaranteed.
 
-## 2. 每次汇报都是完整版
-- 用户只看最新一份汇报，就应该能处理完所有事情。
-- 用户自上次回复以来如果没再回复，就当用户没看过这期间的任何汇报。新汇报要把这段时间的内容全部写进去。
-- 不要写"同上""见上次""和之前一样"。需要的内容直接写全。
-- 下文说的"上次回复"，都指用户最后一次回复；用户从没回复过，就从本协议生效时算起。
+## 1. Frequency
+- Report every 30 minutes. Use a scheduled wakeup, not idle polling.
+- All times are US Central Time, labeled CST.
 
-## 3. 汇报格式
+## 2. Every report is complete
+- Reading only the latest report must be enough for the user to handle everything.
+- If the user has not replied since their last reply, assume they have read none of the reports in between. The new report must include everything from that whole period.
+- Never write "same as above", "see last report", or "unchanged". Write the content out in full.
+- Below, "last reply" always means the user's most recent reply; if the user has never replied, count from when this protocol took effect.
 
-**汇报 · HH:MM CST**
+## 3. Report format
 
-先用一句话说总体情况：自你上次回复以来做完了几个、正在跑几个、后面还计划几个，全部做完预计几点几分 CST。
+**Report · HH:MM CST**
 
-再列一张表，覆盖三段内容：你上次回复以来做完的、现在正在跑的、之后计划要做的。按这个顺序从上往下排，每个实验一行：
+Start with one sentence on the overall state: since your last reply, how many are done, how many are running, how many more are planned, and the estimated CST time when everything will be finished.
 
-| # | 实验 | 状态 | 结果 / ETA | 备注 |
+Then one table covering three parts, top to bottom in this order: finished since your last reply, currently running, planned next. One row per experiment:
+
+| # | Experiment | Status | Result / ETA | Notes |
 |---|---|---|---|---|
-| 1 | … | ✅ 完成 | 关键指标 | |
-| 2 | … | ❌ 失败 | 失败原因，是否重跑 | |
-| 3 | … | 🔄 进行中 | 进度，ETA 几点几分 CST | |
-| 4 | … | ⏳ 计划中 | 预计开始和完成时间（CST） | |
+| 1 | … | ✅ Done | key metrics | |
+| 2 | … | ❌ Failed | cause, rerun or not | |
+| 3 | … | 🔄 Running | progress, ETA HH:MM CST | |
+| 4 | … | ⏳ Planned | expected start and finish (CST) | |
 
-- 做完的（包括失败的）按完成时间排，写结果。没做完的写 ETA，计划中的也要写。
-- 你上次回复之前就做完的不再列。那时在跑、现在还没完的照列。
-- 同一批、配置相同的大量实验可以合成一行，写完成数/总数。
-- 表格最后一行写所有计划工作预计全部做完的时间。
+- Finished items (including failures) are ordered by completion time, with results. Unfinished items get an ETA; planned items too.
+- Items finished before your last reply are not listed. Items that were running then and are still not done are listed.
+- A large batch of identical-config experiments may be merged into one row with done/total.
+- The last row of the table gives the estimated time when all planned work will be finished.
 
-然后写"自你上次回复以来的变化"：把这段时间的所有变化都列出来，重要的放前面。
+Then a section "Changes since your last reply": list every change in that period, most important first.
 
-## 4. 遇到需要用户决定的问题
-- 每个问题编一个号（Q1、Q2…），写出可选项，并标明你的默认选择及理由。
-- 提出后 30 分钟用户没回复，就按默认选择执行，不要停工。
-- 以下几类不能按默认执行，只列出来等用户回复。同时继续做不受影响的其他工作。
-  - 对外动作：push、开 PR、发布、给其他人发消息。用户自己的 agent 之间互相发消息不算对外动作，可以直接发。
-  - 删除无法恢复的数据。
-  - 用户明确说过要自己决定的事。
+## 4. Questions that need the user's decision
+- Number each question (Q1, Q2, …), list the options, and mark your default choice with its reason.
+- If the user has not replied 30 minutes after a question is raised, proceed with the default. Do not stop working.
+- The following must not proceed on a default. List them and wait for a reply, while continuing other unaffected work:
+  - External actions: push, opening a PR, publishing, sending messages to other people. Messages between the user's own agents are not external and can be sent directly.
+  - Deleting data that cannot be recovered.
+  - Anything the user has explicitly said they want to decide themselves.
 
-## 5. 汇报结尾
-只要有待决问题，每次汇报都必须以这一段结尾：
+## 5. Report ending
+Whenever there are open questions, every report must end with this section:
 
-**需要你回复**
-1. 已按默认执行（可推翻）：列出自你上次回复以来**所有**按默认做的决定。每条写编号、问题、我做了什么、怎么撤回。
-2. 仍需你回复：列出**所有**还没定的问题。每条写编号、问题、可选项、我的默认选择、为什么不能自己定。
+**Need your reply**
+1. Done by default (can be reversed): list **all** decisions made by default since your last reply. For each: number, question, what I did, how to undo it.
+2. Still needs your reply: list **all** undecided questions. For each: number, question, options, my default, why I cannot decide it myself.
 
-用户回复后，处理过的条目从下次汇报中去掉，没处理的继续列。
+After the user replies, handled items are removed from the next report; unhandled ones stay.
 
-没有问题时，结尾写"无需回复"。
+If there are no questions, end with "No reply needed".
 
-如果有第 6 节的钉住答复，放在这一段之后，作为整份汇报的最后一段。
+If there are pinned answers from Section 6, put them after this section, as the very last part of the report.
 
-## 6. 钉住答复，直到用户确认看到
-用户在两次汇报之间发消息、问了具体问题，agent 当场答复后，用户可能已经离开，没看到这条答复。所以：
+## 6. Pin answers until the user confirms seeing them
+When the user sends a message between reports and asks something specific, the agent answers right away, but the user may already have left and missed that answer. So:
 
-- 这类答复要钉在之后**每一次**汇报的最末尾（"需要你回复"或"无需回复"之后），直到用户确认看到。
-- 算确认看到的情况：用户说"看到了"（确认全部），或"A1 看到了"（只确认这一条），或下一条消息明显是接着这条答复说的（追问、据此下指示）。用户发了无关的消息不算确认。
-- 哪些答复要钉住，由 agent 自己判断。标准是：**用户要是没看到这条答复，会不会漏掉想要的信息，或者因此做错决定？** 会，就钉住。
-  - 要钉：问了具体事实或数字（"X 跑完了吗""Y 的结果是多少"）；要原因、分析、判断或建议；下了指示，但执行结果和预期的不一样（做不到、换了做法、发现了问题）。
-  - 不钉：寒暄客套（"hi""谢谢""好的"）；简单指令已经照做，结果也已经体现在表格或"变化"里；答复本身就是一个待决问题，那就放进第 5 节的"需要你回复"，不要重复列。
+- Pin such answers at the very end of **every** following report (after "Need your reply" or "No reply needed") until the user confirms seeing them.
+- Counts as confirmed: the user says "seen" / "看到了" (confirms all), or "A1 seen" (confirms that one), or their next message clearly follows up on that answer (a follow-up question, or an instruction based on it). An unrelated message does not count.
+- The agent decides which answers to pin. The test: **if the user did not see this answer, would they miss information they wanted, or make a wrong decision because of it?** If yes, pin it.
+  - Pin: questions about specific facts or numbers ("is X done", "what was Y's result"); requests for reasons, analysis, judgment, or advice; instructions whose outcome differs from what the user expected (impossible, done differently, a problem found).
+  - Do not pin: small talk ("hi", "thanks", "ok"); simple instructions already carried out whose result already shows in the table or "Changes"; answers that are themselves an open question (those go into "Need your reply" under Section 5, not listed twice).
 
-格式：
+Format:
 
-**你之前问的（看到请回"看到了"）**
-- **A1** · HH:MM CST 你问：<一句话复述原问题>
-  答：<完整答复>
+**You asked earlier (reply "seen" once you've read it)**
+- **A1** · HH:MM CST You asked: <one-sentence restatement of the question>
+  Answer: <full answer>
 
-- 每条编号（A1、A2…），写明提问时间、原问题和完整答复。遵守第 2 节，不写"见上面""同之前的回复"。答复很长时，结论和关键依据写全，细节给文件路径。
-- 答复发出后情况变了（新数据推翻了结论、ETA 改了），就把钉住的这条直接改成最新答复，并注明"（已更新，原来说的是 …）"。
-- 用户确认后，下次汇报去掉对应条目。
+- Number each one (A1, A2, …) with the time asked, the original question, and the full answer. Section 2 applies: never write "see above" or "same as before". For long answers, give the full conclusion and key evidence, and file paths for details.
+- If things change after the answer was given (new data overturns the conclusion, an ETA moves), edit the pinned item to the latest answer and note "(updated, previously said …)".
+- After the user confirms, remove the item from the next report.
 
-## 7. 持续执行
-- 计划变了（加了、删了、换了顺序），表格和 ETA 跟着改，并写进"自你上次回复以来的变化"。
-- 用户的回复优先于默认选择。被推翻的决定要立刻撤回，并在下次汇报里说明。
+## 7. Keep going
+- When the plan changes (items added, removed, or reordered), update the table and ETAs and record it under "Changes since your last reply".
+- The user's replies override default choices. Immediately undo any overridden decision and explain it in the next report.

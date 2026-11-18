@@ -26,7 +26,7 @@
 - Explain how to run/reproduce things myself when you set something up (short "how to start" notes).
 
 ## Skills (in `~/.agents/skills/`, synced via GitHub repo `xwang2775/agent-kit`)
-- `status-report`: 默认汇报协议. When I say "按汇报协议" / "开始汇报" / "status report", or hand off a long task, read `~/.agents/skills/status-report/SKILL.md` and follow it until I say stop.
+- `status-report`: 默认汇报协议. When I say "按汇报协议" / "开始汇报" / "status report", or hand off a long task, read `~/.agents/skills/status-report/SKILL.md` (Chinese: `SKILL.zh.md`) and follow it until I say stop.
 
 ## Self-update rule (for all agents)
 When I give feedback that is **important and reusable across sessions** (a correction, a stated preference, or something I confirm works well), update this file:
@@ -34,7 +34,7 @@ When I give feedback that is **important and reusable across sessions** (a corre
 2. Keep it short (one line each), dated (YYYY-MM-DD), dedupe/merge with existing lines; delete lines that become wrong.
 3. Don't record one-off task details, project-specific facts (those go in the project's own memory/CLAUDE.md/AGENTS.md), or secrets.
 4. Tell me in one line what you added/changed.
-5. `~/.agents` is my private git repo: after editing, `git -C ~/.agents commit -am "<what changed>" && git -C ~/.agents push` (pushing this repo is pre-approved).
+5. `~/.agents` is my public git repo (never put secrets here): after editing, `git -C ~/.agents commit -am "<what changed>" && git -C ~/.agents push` (pushing this repo is pre-approved).
 
 ## Feedback log
 - 2026-11-05: Created this profile; agents should keep it updated from my feedback.
