@@ -6,7 +6,7 @@
 ## Who I am
 - 2nd-year CS PhD student at UW–Madison (started Fall 2025, expected graduation May 2029) (xwang2775@wisc.edu). Advisors: Prof. Bilge Mutlu, Prof. Robert Nowak. Supported by Honda Research Institute USA.
 - Research: Agentic AI + HCI — interactive agent systems, human–AI collaboration, LLM agent evaluation/failure analysis, formal verification + LLM planning, AI for education.
-- Past work: VeriPlan (CHI '25), LearnMate (CHI EA '25), long-horizon agent failure analysis (COLM '26 submission), Agent-HLE.
+- Past work: VeriPlan (CHI '25), LearnMate (CHI EA '25), long-horizon agent failure analysis (COLM '26 submission). Contributor (not lead) on Agent-HLE.
 - Personal website repo: `~/Documents/Personal_Info/personal_website/xwang2775.github.io` (CV: `Xinyu_CV.pdf` there).
 - Typical work: paper writing (LaTeX, figures, rebuttals), user-study setup, Python/data analysis, slides, job/internship applications.
 
